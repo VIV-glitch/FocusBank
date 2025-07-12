@@ -3,26 +3,48 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FocusBank</title>
+  <title>Focus Bank</title>
   <style>
     :root {
-      --primary: #22223b;
-      --accent: #4a4e69;
-      --bg: #f8f9fa;
-      --button: #e0e1dd;
-      --button-text: #22223b;
-      --button-active: #c9ada7;
+      --primary-light: #36313d;
+      --primary-dark: #e6e6ea;
+      --accent-light: #a590d6;
+      --accent-dark: #d6bbfd;
+      --bg-light: #f9f8f6;
+      --bg-dark: #242435;
+      --button-light: #e7e6f0;
+      --button-dark: #36313d;
+      --button-text-light: #36313d;
+      --button-text-dark: #f6f6f9;
+      --button-active-light: #d6bbfd;
+      --button-active-dark: #a590d6;
       --danger: #e07a5f;
       --danger-dark: #b85c3b;
+      --focus-ring: #b2e5d3;
+      --lavender: #e9d8fd;
+      --tan: #f7efe3;
+      --green: #36c98c;
+      --violet: #9c70be;
+      --ring-bg-light: #ece8f7;
+      --ring-bg-dark: #2f2c3f;
+      --ring-fg-break: #36c98c;
+      --ring-fg-work: #a590d6;
+      --ring-fg-idle: #bfb6e1;
+      --work-spin: #36c98c;
     }
     html, body {
       min-height: 100vh;
       margin: 0;
       padding: 0;
-      background: var(--bg);
-      color: var(--primary);
+      background: var(--bg-light);
+      color: var(--primary-light);
       font-family: 'Inter', Arial, sans-serif;
       box-sizing: border-box;
+      transition: background 0.25s, color 0.25s;
+    }
+    body.darkmode, html.darkmode {
+      background: var(--bg-dark);
+      color: var(--primary-dark);
     }
     body {
       display: flex;
@@ -36,39 +58,171 @@
       flex-direction: column;
       align-items: center;
       width: 100%;
-      max-width: 360px;
+      max-width: 380px;
       padding: 2.5rem 1rem 1.5rem 1rem;
-      background: white;
+      background: var(--tan);
       border-radius: 20px;
-      box-shadow: 0 4px 32px rgba(40,50,80,0.07);
+      box-shadow: 0 4px 32px rgba(40,50,80,0.09);
       gap: 2.2rem;
       position: relative;
+      transition: background 0.25s;
+    }
+    body.darkmode .container {
+      background: #30304b;
+      box-shadow: 0 4px 32px rgba(120,130,180,0.18);
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      width: 100%;
+      margin-bottom: -0.5rem;
+      position: relative;
+      margin-top: 0.2em;
     }
     h1 {
-      font-size: 2.1rem;
+      font-size: 2.12rem;
       font-weight: 700;
-      margin: 0 0 0.5rem 0;
+      margin: 0;
       letter-spacing: 0.01em;
-      color: var(--primary);
+      color: var(--primary-light);
       text-align: center;
+      transition: color 0.25s;
+      display: inline-block;
+    }
+    body.darkmode h1 { color: var(--primary-dark);}
+    /* Info icon and popup */
+    .info-icon {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.35rem;
+      margin-left: 0.15rem;
+      margin-top: 0.05rem;
+      cursor: pointer;
+      color: #ffb86b;
+      background: #fffbe9;
+      border-radius: 50%;
+      border: none;
+      box-shadow: 0 2px 8px #ffe3b766;
+      padding: 0.13em 0.19em;
+      transition: background 0.16s, color 0.16s;
+      position: relative;
+      outline: none;
+      border: 2px solid #ffe3b7;
+    }
+    .info-icon:active,
+    .info-icon:focus {
+      background: #fff1c7;
+      color: #ff9800;
+      border-color: #ffd37e;
+    }
+    .info-icon:hover {
+      background: #fff1c7;
+      color: #ff9800;
+      border-color: #ffd37e;
+    }
+    body.darkmode .info-icon {
+      background: #332200;
+      color: #ffd37e;
+      border: 2px solid #ffd37e;
+      box-shadow: 0 2px 8px #33220066;
+    }
+    .info-popup {
+      display: none;
+      position: absolute;
+      top: 2.3em;
+      left: 0;
+      z-index: 20;
+      width: 308px;
+      background: var(--bg-light);
+      color: var(--primary-light);
+      border-radius: 12px;
+      box-shadow: 0 6px 40px rgba(40,50,80,0.14);
+      padding: 1.05em 1em 1em 1em;
+      font-size: 0.99rem;
+      line-height: 1.6;
+    }
+    body.darkmode .info-popup {
+      background: #23233b;
+      color: #e6e6ea;
+      box-shadow: 0 6px 40px rgba(180,190,220,0.22);
+    }
+    .info-popup.active { display: block; }
+    .info-popup strong { color: var(--accent-light);}
+    .darkmode .info-popup strong { color: var(--accent-dark);}
+    /* Progress Ring styles */
+    .progress-ring {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 0.5rem auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    @media (max-width: 600px) {
+      .progress-ring { width: 120px; height: 120px; }
+    }
+    .progress-ring svg {
+      position: absolute;
+      top: 0; left: 0;
+      z-index: 1;
+    }
+    .work-spin-arc {
+      position: absolute;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 2;
+      transform-origin: 50% 50%;
+      will-change: transform;
     }
     .timer {
-      font-size: 4rem;
+      font-size: 2.5rem;
       font-weight: 600;
       letter-spacing: 0.03em;
       text-align: center;
       margin: 0;
       padding: 0.5rem 0;
+      z-index: 3;
+      position: relative;
+      color: var(--primary-light);
+      transition: color 0.25s, font-size 0.2s;
+      width: 100%;
+      user-select: none;
+      line-height: 1.1;
+      min-height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+    .timer.small-text {
+      font-size: 1.1rem;
+      font-weight: 500;
+      padding: 0.3rem 0;
+      min-height: 1.7rem;
+      color: var(--accent-light);
+      text-align: center;
+      word-break: break-word;
+    }
+    @media (max-width: 600px) {
+      .timer { font-size: 1.4rem;}
+      .timer.small-text { font-size: 0.81rem; min-height: 1.1rem; }
+    }
+    body.darkmode .timer { color: var(--primary-dark);}
+    body.darkmode .timer.small-text { color: var(--accent-dark);}
     .focus-stats-row {
       display: flex;
       align-items: center;
       gap: 0.6rem;
       margin: 0.2rem 0 0 0;
       font-size: 1.1rem;
-      color: var(--accent);
+      color: var(--accent-light);
       font-weight: 500;
+      position: relative;
+      justify-content: center;
     }
+    body.darkmode .focus-stats-row { color: var(--accent-dark);}
     .stats-actions {
       display: flex;
       gap: 0.4rem;
@@ -77,7 +231,7 @@
     .icon-btn {
       background: none;
       border: none;
-      color: var(--accent);
+      color: var(--accent-light);
       cursor: pointer;
       font-size: 1.15rem;
       padding: 0.15rem 0.2rem;
@@ -86,16 +240,19 @@
       outline: none;
     }
     .icon-btn:hover {
-      color: var(--primary);
+      color: var(--primary-light);
       background: #f2f2f7;
     }
-    .icon-btn.danger {
-      color: var(--danger);
+    body.darkmode .icon-btn {
+      color: var(--accent-dark);
+      background: none;
     }
-    .icon-btn.danger:hover {
-      color: var(--danger-dark);
-      background: #fae5e1;
+    body.darkmode .icon-btn:hover {
+      color: var(--primary-dark);
+      background: #22223b44;
     }
+    .icon-btn.danger { color: var(--danger);}
+    .icon-btn.danger:hover { color: var(--danger-dark); background: #fae5e1;}
     .button-row {
       display: flex;
       gap: 1rem;
@@ -109,32 +266,39 @@
       font-weight: 600;
       border: none;
       border-radius: 8px;
-      background: var(--button);
-      color: var(--button-text);
+      background: var(--button-light);
+      color: var(--button-text-light);
       cursor: pointer;
-      transition: background 0.15s;
+      transition: background 0.15s, color 0.25s;
       outline: none;
     }
-    button:active {
-      background: var(--button-active);
-    }
-    button[disabled] {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+    button:active { background: var(--button-active-light);}
+    button[disabled] { opacity: 0.5; cursor: not-allowed;}
     #startBreakBtn, #stopBreakBtn {
-      margin-top: 1rem;
-      width: 100%;
+      margin-top: 1rem; width: 100%;
     }
     #stopBreakBtn {
       background: var(--danger);
       color: white;
       margin-top: 0.5rem;
     }
-    #stopBreakBtn:active {
-      background: var(--danger-dark);
+    #stopBreakBtn:active { background: var(--danger-dark);}
+    .work-break-msg {
+      margin-top: -1rem;
+      margin-bottom: 1rem;
+      font-size: 1.08rem;
+      text-align: center;
+      color: var(--accent-light);
+      background: var(--green);
+      padding: 0.65rem 0.7rem;
+      border-radius: 9px;
+      display: none;
+      transition: opacity 0.2s;
     }
-
+    body.darkmode .work-break-msg {
+      background: #2f3f36;
+      color: #d6ffe5;
+    }
     /* Modal styles */
     .modal-backdrop {
       position: fixed;
@@ -146,7 +310,7 @@
       justify-content: center;
     }
     .modal {
-      background: white;
+      background: var(--lavender);
       padding: 1.5rem 1.2rem 1.2rem 1.2rem;
       border-radius: 14px;
       box-shadow: 0 8px 40px rgba(40,50,80,0.13);
@@ -159,13 +323,16 @@
       display: flex;
       flex-direction: column;
       gap: 1.1rem;
+      transition: background 0.25s;
     }
+    body.darkmode .modal { background: #23233b; }
     .modal h2 {
       font-size: 1.25rem;
       margin: 0 0 0.6rem 0;
       font-weight: 600;
-      color: var(--primary);
+      color: var(--primary-light);
     }
+    body.darkmode .modal h2 { color: var(--primary-dark);}
     .modal .close-btn {
       position: absolute;
       right: 1.1rem;
@@ -173,12 +340,12 @@
       background: none;
       border: none;
       font-size: 1.3rem;
-      color: var(--accent);
+      color: var(--accent-light);
       cursor: pointer;
     }
-    .modal .close-btn:hover {
-      color: var(--primary);
-    }
+    .modal .close-btn:hover { color: var(--primary-light);}
+    body.darkmode .modal .close-btn { color: var(--accent-dark);}
+    body.darkmode .modal .close-btn:hover { color: var(--primary-dark);}
     .session-list {
       display: flex;
       flex-direction: column;
@@ -186,12 +353,14 @@
     }
     .session-item {
       padding: 0.7rem 0.6rem 0.7rem 0.6rem;
-      background: #f8f9fa;
+      background: var(--bg-light);
       border-radius: 8px;
       display: flex;
       flex-direction: column;
       gap: 0.2rem;
+      transition: background 0.24s;
     }
+    body.darkmode .session-item { background: #23233b; }
     .session-meta {
       font-size: 0.92rem;
       color: #646686;
@@ -201,15 +370,17 @@
     }
     .session-note {
       font-size: 1rem;
-      color: var(--primary);
+      color: var(--primary-light);
       margin-top: 0.3rem;
     }
+    body.darkmode .session-note { color: var(--primary-dark);}
     .modal label {
       font-size: 1rem;
-      color: var(--primary);
+      color: var(--primary-light);
       margin-bottom: 0.2rem;
       font-weight: 500;
     }
+    body.darkmode .modal label { color: var(--primary-dark);}
     .modal textarea {
       width: 100%;
       min-height: 44px;
@@ -222,7 +393,7 @@
     .modal .save-btn {
       margin-top: 0.8rem;
       padding: 0.6rem 0;
-      background: var(--accent);
+      background: var(--accent-light);
       color: white;
       border-radius: 7px;
       border: none;
@@ -231,42 +402,94 @@
       cursor: pointer;
       transition: background 0.18s;
     }
-    .modal .save-btn:active {
-      background: var(--primary);
-    }
+    .modal .save-btn:active { background: var(--primary-light);}
     .modal .empty-history {
       color: #a8a8b7;
       font-size: 1rem;
       text-align: center;
       margin: 1.5rem 0 0.5rem 0;
     }
+    /* Dark mode toggle - fixed at top right of screen */
+    .darkmode-toggle {
+      position: fixed;
+      top: 1.2rem;
+      right: 1.2rem;
+      background: var(--lavender);
+      color: var(--primary-light);
+      border: none;
+      border-radius: 50%;
+      width: 2.3rem;
+      height: 2.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.32rem;
+      box-shadow: 0 2px 8px #c7c1d066;
+      transition: background 0.2s, color 0.2s;
+      z-index: 1100;
+    }
+    .darkmode .darkmode-toggle {
+      background: #23233b;
+      color: #e6e6ea;
+      box-shadow: 0 2px 8px #10102066;
+    }
+    /* "viv" signature */
+    .viv-signature {
+      position: fixed;
+      right: 1.2rem;
+      bottom: 1.2rem;
+      color: #a590d6b8;
+      font-size: 1.1rem;
+      letter-spacing: 0.07em;
+      font-family: 'Inter', Arial, sans-serif;
+      opacity: 0.7;
+      z-index: 1000;
+      pointer-events: none;
+      user-select: none;
+      font-weight: 600;
+    }
+    body.darkmode .viv-signature {
+      color: #d6bbfdc8;
+      text-shadow: 0 1px 8px #10103088;
+    }
     @media (max-width: 600px) {
-      .container {
-        max-width: 98vw;
-        padding: 1.2rem 0.3rem 1rem 0.3rem;
-      }
-      .timer { font-size: 2.6rem; }
-      h1 { font-size: 1.3rem; }
-      button { font-size: 1rem; padding: 0.7rem 0; }
-      .modal { min-width: 0; width: 95vw; }
+      .container { max-width: 98vw; padding: 1.2rem 0.3rem 1rem 0.3rem; }
+      .progress-ring { width: 120px; height: 120px; }
+      .viv-signature { font-size: 0.96rem; right: 0.7rem; bottom: 0.7rem;}
+      .info-popup { width: 94vw; min-width: 220px;}
+      .darkmode-toggle { width: 2.0rem; height: 2.0rem; font-size: 1.12rem; top: 0.7rem; right: 0.7rem; }
     }
   </style>
 </head>
 <body>
+  <button class="darkmode-toggle" id="darkmodeToggle" title="Toggle Dark Mode">🌙</button>
   <div class="container">
-    <h1>FocusBank</h1>
-    <div class="timer" id="timer">00:00</div>
+    <div class="header-row">
+      <h1 style="display:flex;align-items:center;justify-content:center;gap:0.25em;">
+        Focus Bank
+        <button class="info-icon" id="infoIcon" aria-label="How this works" tabindex="0">🦊
+          <div class="info-popup" id="infoPopup">
+            <strong>What is Focus Bank?</strong><br/>
+            This is a <b>Pomodoro timer</b> where the more you work, the more break time you earn. <br><br>
+            <b>Ratio:</b> <span style="color:var(--accent-light)">1:5</span> (1 min break per 5 min work, minimum 1 min).<br>
+            <b>Why?</b> This timer follows a break-to-work ratio of <b>1:5</b> — based on research from the Pomodoro Technique and supported by productivity studies like the <b>52/17 Rule</b>. Short, regular breaks are scientifically proven to help sustain focus, reduce mental fatigue, and improve long-term productivity.
+          </div>
+        </button>
+      </h1>
+    </div>
+    <div class="progress-ring" id="progressRing" style="position:relative;">
+      <canvas id="workSpinArc" class="work-spin-arc"></canvas>
+      <div class="timer" id="timer">00:00</div>
+    </div>
     <div class="focus-stats-row">
       Total Focus: <span id="totalFocus">00:00</span>
       <div class="stats-actions">
-        <button class="icon-btn" title="View Focus History" onclick="openHistory()">
-          🕓
-        </button>
-        <button class="icon-btn danger" title="Reset & Record" onclick="openResetModal()">
-          ♻️
-        </button>
+        <button class="icon-btn" title="View Focus History" onclick="openHistory()">🕓</button>
+        <button class="icon-btn danger" title="Reset & Record" onclick="openResetModal()">♻️</button>
       </div>
     </div>
+    <div id="workBreakMsg" class="work-break-msg"></div>
     <div class="button-row">
       <button id="startBtn" onclick="startWork()">Start</button>
       <button id="stopBtn" onclick="stopWork()" disabled>Stop</button>
@@ -307,8 +530,59 @@
       </div>
     </div>
   </div>
-
+  <div class="viv-signature">viv</div>
   <script>
+    // --- DARK MODE ---
+    function setDarkMode(on) {
+      if (on) {
+        document.body.classList.add('darkmode');
+        document.documentElement.classList.add('darkmode');
+        localStorage.setItem('focusbank_darkmode', '1');
+        document.getElementById('darkmodeToggle').innerText = '🌞';
+        document.getElementById('darkmodeToggle').title = 'Switch to Light Mode';
+      } else {
+        document.body.classList.remove('darkmode');
+        document.documentElement.classList.remove('darkmode');
+        localStorage.setItem('focusbank_darkmode', '0');
+        document.getElementById('darkmodeToggle').innerText = '🌙';
+        document.getElementById('darkmodeToggle').title = 'Switch to Dark Mode';
+      }
+      injectRingSvg();
+      setRingBgColor();
+      updateProgressRing(0);
+      drawWorkSpinArc(0);
+    }
+    document.getElementById('darkmodeToggle').onclick = function() {
+      setDarkMode(!document.body.classList.contains('darkmode'));
+    };
+    (function(){
+      if (localStorage.getItem('focusbank_darkmode') === '1') setDarkMode(true);
+    })();
+
+    // --- INFO POPUP ---
+    const infoIcon = document.getElementById('infoIcon');
+    const infoPopup = document.getElementById('infoPopup');
+    function showInfoPopup() {
+      infoPopup.classList.add('active');
+    }
+    function hideInfoPopup() {
+      infoPopup.classList.remove('active');
+    }
+    infoIcon.addEventListener('mouseenter', showInfoPopup);
+    infoIcon.addEventListener('mouseleave', hideInfoPopup);
+    infoIcon.addEventListener('focus', showInfoPopup);
+    infoIcon.addEventListener('blur', hideInfoPopup);
+    infoIcon.addEventListener('click', function(e){
+      if (infoPopup.classList.contains('active')) {
+        hideInfoPopup();
+      } else {
+        showInfoPopup();
+      }
+    });
+    document.addEventListener('click', function(e){
+      if (!infoIcon.contains(e.target)) hideInfoPopup();
+    });
+
     // --- Time & Session State ---
     let workStartTime = null;
     let lastWorkDuration = 0;
@@ -325,7 +599,6 @@
     const FOCUS_SESSIONS_KEY = "focusbank_sessions";
     const FOCUS_SESSION_START_KEY = "focusbank_sessionStart";
 
-    // --- Load persistent values ---
     if (localStorage.getItem(FOCUS_TOTAL_KEY)) {
       totalFocusMs = parseInt(localStorage.getItem(FOCUS_TOTAL_KEY), 10) || 0;
     }
@@ -344,13 +617,26 @@
       const seconds = String(totalSeconds % 60).padStart(2, '0');
       return `${minutes}:${seconds}`;
     }
+    function formatMinutes(ms) {
+      const mins = Math.round(ms/1000/60);
+      return mins === 1 ? '1 minute' : `${mins} minutes`;
+    }
     function formatDate(dt) {
       if (!(dt instanceof Date)) dt = new Date(dt);
       return dt.toLocaleDateString() + ' ' + dt.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
     }
 
-    function updateTimerDisplay(ms) {
-      document.getElementById('timer').textContent = formatTime(ms);
+    // --- Timer Display ---
+    function updateTimerDisplay(ms, labelOverride = null) {
+      const timerEl = document.getElementById('timer');
+      if (typeof labelOverride === "string") {
+        timerEl.textContent = labelOverride;
+        timerEl.classList.add('small-text');
+      } else {
+        timerEl.textContent = formatTime(ms);
+        timerEl.classList.remove('small-text');
+      }
+      updateProgressRing(ms);
     }
     function updateTotalFocusDisplay() {
       document.getElementById('totalFocus').textContent = formatTime(totalFocusMs);
@@ -374,6 +660,10 @@
       document.getElementById('stopBtn').disabled = false;
       document.getElementById('startBreakBtn').style.display = 'none';
       document.getElementById('stopBreakBtn').style.display = 'none';
+      hideWorkBreakMsg();
+      setProgressSpinning(true);
+      setProgressRingMode("work", 0);
+      startWorkSpinAnim();
       timerInterval = setInterval(() => {
         const now = Date.now();
         lastWorkDuration = now - workStartTime;
@@ -391,14 +681,32 @@
       saveTotalFocus();
       clearInterval(timerInterval);
       updateTimerDisplay(lastWorkDuration);
+      setProgressSpinning(false);
+      setProgressRingMode("idle", 0);
+      stopWorkSpinAnim();
 
       // --- Scaled break: 1 min per 5 min of work (minimum 1 min, floored) ---
-      // E.g., 5-9min = 1min, 10-14min = 2min, etc.
       breakDuration = Math.floor((lastWorkDuration / 1000 / 60) / 5) * 60 * 1000;
       if (breakDuration < 60000) breakDuration = 60000;
       document.getElementById('startBreakBtn').style.display = 'block';
       document.getElementById('stopBtn').disabled = true;
       document.getElementById('startBtn').disabled = false;
+
+      showWorkBreakMsg(lastWorkDuration, breakDuration);
+    }
+
+    // --- Friendly work/break message ---
+    function showWorkBreakMsg(workMs, breakMs) {
+      const msg = `You worked for <b>${formatMinutes(workMs)}</b> — take a <b>${formatMinutes(breakMs)}</b> break!`;
+      const el = document.getElementById('workBreakMsg');
+      el.innerHTML = msg;
+      el.style.display = 'block';
+      el.style.opacity = '1';
+    }
+    function hideWorkBreakMsg() {
+      const el = document.getElementById('workBreakMsg');
+      el.style.display = 'none';
+      el.style.opacity = '0';
     }
 
     // --- Break Timer Logic ---
@@ -409,23 +717,27 @@
       document.getElementById('stopBreakBtn').style.display = 'block';
       breakTimeLeft = breakDuration;
       let breakEndTime = Date.now() + breakTimeLeft;
+      setProgressRingMode("break", breakDuration);
       updateTimerDisplay(breakTimeLeft);
       timerInterval = setInterval(() => {
         breakTimeLeft = breakEndTime - Date.now();
         if (breakTimeLeft <= 0) {
           clearInterval(timerInterval);
-          document.getElementById('timer').textContent = 'Break over! 🎉';
+          updateTimerDisplay(0, "Break over! 🎉");
+          setProgressRingMode("idle", 0);
           endBreak();
           return;
         }
         updateTimerDisplay(breakTimeLeft);
       }, 200);
+      hideWorkBreakMsg();
     }
 
     function stopBreak() {
       if (!onBreak) return;
       clearInterval(timerInterval);
-      document.getElementById('timer').textContent = 'Break stopped.';
+      updateTimerDisplay(0, "Break stopped.");
+      setProgressRingMode("idle", 0);
       endBreak();
     }
     function endBreak() {
@@ -433,12 +745,12 @@
       document.getElementById('stopBreakBtn').style.display = 'none';
       document.getElementById('startBtn').disabled = false;
       document.getElementById('stopBtn').disabled = true;
+      setProgressRingMode("idle", 0);
     }
 
     // --- Recording & Resetting Total Focus ---
     function openResetModal() {
       if (totalFocusMs === 0) return;
-      // Populate modal values
       document.getElementById('modalFocusTime').textContent = formatTime(totalFocusMs);
       document.getElementById('modalStart').textContent = formatDate(focusSessionStart);
       document.getElementById('modalEnd').textContent = formatDate(new Date());
@@ -449,7 +761,6 @@
       document.getElementById('resetModal').style.display = 'none';
     }
     function saveAndReset() {
-      // Record session to history
       let sessions = [];
       try {
         sessions = JSON.parse(localStorage.getItem(FOCUS_SESSIONS_KEY) || "[]");
@@ -460,9 +771,8 @@
         ended: new Date(),
         note: document.getElementById('focusNote').value.trim()
       };
-      sessions.unshift(session); // newest first
+      sessions.unshift(session);
       localStorage.setItem(FOCUS_SESSIONS_KEY, JSON.stringify(sessions));
-      // Reset total focus & start time
       totalFocusMs = 0;
       focusSessionStart = new Date();
       saveTotalFocus();
@@ -508,25 +818,206 @@
       }
     }
 
-    // --- Initialize displays ---
     updateTotalFocusDisplay();
     updateTimerDisplay(0);
 
-    // --- Keyboard: Escape closes modals ---
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         closeResetModal();
         closeHistory();
       }
     });
-
-    // --- Close modal when clicking outside it ---
     document.getElementById('resetModal').addEventListener('click', function(e) {
       if (e.target.classList.contains('modal-backdrop')) closeResetModal();
     });
     document.getElementById('historyModal').addEventListener('click', function(e) {
       if (e.target.classList.contains('modal-backdrop')) closeHistory();
     });
+
+    // --- Progress Ring ---
+    function getRingSize() {
+      return window.innerWidth < 600 ? 120 : 200;
+    }
+    function injectRingSvg() {
+      const ringSize = getRingSize();
+      const ringStroke = 18;
+      const ringRadius = (ringSize/2) - ringStroke/2 - 2;
+      const ringCircum = 2 * Math.PI * ringRadius;
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("width", ringSize);
+      svg.setAttribute("height", ringSize);
+      svg.innerHTML = `
+        <circle
+          class="ring-bg"
+          cx="${ringSize/2}" cy="${ringSize/2}"
+          r="${ringRadius}"
+          stroke="${document.body.classList.contains('darkmode') ? 'var(--ring-bg-dark)' : 'var(--ring-bg-light)'}"
+          stroke-width="${ringStroke}"
+          fill="none"
+        />
+        <circle
+          class="ring-fg"
+          cx="${ringSize/2}" cy="${ringSize/2}"
+          r="${ringRadius}"
+          stroke="var(--ring-fg-idle)"
+          stroke-width="${ringStroke}"
+          fill="none"
+          stroke-dasharray="${ringCircum}"
+          stroke-dashoffset="${ringCircum}"
+          stroke-linecap="round"
+          style="transition: stroke-dashoffset 0.23s cubic-bezier(.4,1.7,.7,1.01), stroke 0.22s;"
+        />
+      `;
+      const ring = document.getElementById('progressRing');
+      const existing = ring.querySelector('svg');
+      if (existing) ring.removeChild(existing);
+      ring.insertBefore(svg, ring.firstChild);
+    }
+    function setRingBgColor() {
+      const svg = document.getElementById('progressRing').querySelector('svg');
+      if (!svg) return;
+      const bg = svg.querySelector('.ring-bg');
+      bg.setAttribute('stroke', document.body.classList.contains('darkmode') ? getComputedStyle(document.documentElement).getPropertyValue('--ring-bg-dark') : getComputedStyle(document.documentElement).getPropertyValue('--ring-bg-light'));
+    }
+    injectRingSvg();
+
+    let ringMode = "idle";
+    let ringDuration = 0;
+    function setProgressRingMode(mode, duration) {
+      ringMode = mode;
+      ringDuration = duration || 0;
+      updateProgressRing(duration);
+      if (mode === "break") setProgressSpinning(false);
+      if (mode === "idle") setProgressSpinning(false);
+      if (mode === "work") setProgressSpinning(true);
+      setRingFgColor(mode);
+    }
+    function setRingFgColor(mode) {
+      const svg = document.getElementById('progressRing').querySelector('svg');
+      if (!svg) return;
+      const fg = svg.querySelector('.ring-fg');
+      let color = "var(--ring-fg-idle)";
+      if (mode === "break") color = "var(--ring-fg-break)";
+      else if (mode === "work") color = "var(--ring-fg-work)";
+      fg.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue(color));
+      fg.style.opacity = '1';
+    }
+    function updateProgressRing(current) {
+      const svg = document.getElementById('progressRing').querySelector('svg');
+      if (!svg) return;
+      const ringSize = getRingSize();
+      const ringStroke = 18;
+      const ringRadius = (ringSize/2) - ringStroke/2 - 2;
+      const ringCircum = 2 * Math.PI * ringRadius;
+      const fg = svg.querySelector('.ring-fg');
+      if (ringMode === "break" && ringDuration > 0 && typeof current === "number" && current >= 0) {
+        // FILLING RING: green is full at start, empties as break ticks down
+        let left = (current / ringDuration);
+        if (left < 0) left = 0; if (left > 1) left = 1;
+        fg.style.strokeDashoffset = (ringCircum * left).toString();
+        setRingFgColor("break");
+        fg.style.opacity = '1';
+      } else if (ringMode === "work") {
+        fg.style.strokeDashoffset = "0";
+        setRingFgColor("work");
+        fg.style.opacity = '1';
+      } else {
+        fg.style.strokeDashoffset = ringCircum.toString();
+        setRingFgColor("idle");
+        fg.style.opacity = '0.27';
+      }
+    }
+    let spinInterval = null;
+    function setProgressSpinning(on) {
+      const svg = document.getElementById('progressRing').querySelector('svg');
+      if (!svg) return;
+      if (on) {
+        svg.style.transition = 'none';
+        svg.style.willChange = 'transform';
+        let angle = 0;
+        if (spinInterval) clearInterval(spinInterval);
+        // SLOWER, calming phase: 1 full rotation per 7 seconds (360/7/60 ~ 0.86 deg/frame @60fps; ~2.6deg every 45ms)
+        spinInterval = setInterval(()=>{
+          angle = (angle+2.2)%360;
+          svg.style.transform = `rotate(${angle}deg)`;
+        }, 45);
+      } else {
+        if (spinInterval) clearInterval(spinInterval);
+        if (svg) svg.style.transform = '';
+      }
+    }
+
+    // --- Work Spin Arc ---
+    let workSpinAnim = null;
+    function startWorkSpinAnim() {
+      stopWorkSpinAnim();
+      drawWorkSpinArc(0);
+      let angle = 0;
+      const canvas = document.getElementById('workSpinArc');
+      canvas.style.display = '';
+      workSpinAnim = setInterval(() => {
+        angle = (angle + 2.2) % 360; // SLOWER, matches ring
+        drawWorkSpinArc(angle);
+      }, 45);
+    }
+    function stopWorkSpinAnim() {
+      if (workSpinAnim) clearInterval(workSpinAnim);
+      drawWorkSpinArc(null, true);
+    }
+    function drawWorkSpinArc(angle, erase=false) {
+      const canvas = document.getElementById('workSpinArc');
+      const ringSize = getRingSize();
+      canvas.width = ringSize;
+      canvas.height = ringSize;
+      canvas.style.width = ringSize + "px";
+      canvas.style.height = ringSize + "px";
+      if (erase) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0,0,ringSize,ringSize);
+        canvas.style.display = 'none';
+        return;
+      }
+      canvas.style.display = (inWork && !onBreak) ? 'block' : 'none';
+      if (!inWork || onBreak) return;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0,0,ringSize,ringSize);
+      // Arc settings
+      const startAngle = ((angle-15)/180)*Math.PI;
+      const endAngle = ((angle+65)/180)*Math.PI;
+      const ringStroke = 18;
+      const ringRadius = (ringSize/2) - ringStroke/2 - 2;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(ringSize/2, ringSize/2, ringRadius, startAngle, endAngle, false);
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--green').trim() || "#36c98c";
+      ctx.shadowColor = ctx.strokeStyle;
+      ctx.shadowBlur = 7;
+      ctx.lineWidth = ringStroke * 0.8;
+      ctx.lineCap = "round";
+      ctx.globalAlpha = 0.92;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // --- Responsive: re-inject ring if size or theme changes ---
+    window.addEventListener('resize', function(){
+      injectRingSvg();
+      updateProgressRing(0);
+      drawWorkSpinArc(0);
+    });
+    // Re-render ring colors on theme change
+    const observer = new MutationObserver(mutations => {
+      for (let m of mutations) {
+        if (m.attributeName === "class") {
+          injectRingSvg();
+          setRingBgColor();
+          updateProgressRing(0);
+          drawWorkSpinArc(0);
+        }
+      }
+    });
+    observer.observe(document.body, { attributes: true });
+
   </script>
 </body>
 </html>
