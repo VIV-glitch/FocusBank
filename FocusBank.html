@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FocusBank</title>
+  <style>
+    :root {
+      --primary: #22223b;
+      --accent: #4a4e69;
+      --bg: #f8f9fa;
+      --button: #e0e1dd;
+      --button-text: #22223b;
+      --button-active: #c9ada7;
+      --danger: #e07a5f;
+      --danger-dark: #b85c3b;
+    }
+    html, body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--primary);
+      font-family: 'Inter', Arial, sans-serif;
+      box-sizing: border-box;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 360px;
+      padding: 2.5rem 1rem 1.5rem 1rem;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 32px rgba(40,50,80,0.07);
+      gap: 2.2rem;
+      position: relative;
+    }
+    h1 {
+      font-size: 2.1rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      letter-spacing: 0.01em;
+      color: var(--primary);
+      text-align: center;
+    }
+    .timer {
+      font-size: 4rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-align: center;
+      margin: 0;
+      padding: 0.5rem 0;
+    }
+    .focus-stats-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin: 0.2rem 0 0 0;
+      font-size: 1.1rem;
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .stats-actions {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+    }
+    .icon-btn {
+      background: none;
+      border: none;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 1.15rem;
+      padding: 0.15rem 0.2rem;
+      transition: color 0.14s;
+      border-radius: 5px;
+      outline: none;
+    }
+    .icon-btn:hover {
+      color: var(--primary);
+      background: #f2f2f7;
+    }
+    .icon-btn.danger {
+      color: var(--danger);
+    }
+    .icon-btn.danger:hover {
+      color: var(--danger-dark);
+      background: #fae5e1;
+    }
+    .button-row {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      width: 100%;
+    }
+    button {
+      flex: 1 1 0px;
+      padding: 0.9rem 0;
+      font-size: 1.15rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      background: var(--button);
+      color: var(--button-text);
+      cursor: pointer;
+      transition: background 0.15s;
+      outline: none;
+    }
+    button:active {
+      background: var(--button-active);
+    }
+    button[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    #startBreakBtn, #stopBreakBtn {
+      margin-top: 1rem;
+      width: 100%;
+    }
+    #stopBreakBtn {
+      background: var(--danger);
+      color: white;
+      margin-top: 0.5rem;
+    }
+    #stopBreakBtn:active {
+      background: var(--danger-dark);
+    }
+
+    /* Modal styles */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(40,50,80,0.18);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal {
+      background: white;
+      padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+      border-radius: 14px;
+      box-shadow: 0 8px 40px rgba(40,50,80,0.13);
+      max-width: 96vw;
+      min-width: 300px;
+      width: 330px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+    .modal h2 {
+      font-size: 1.25rem;
+      margin: 0 0 0.6rem 0;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .modal .close-btn {
+      position: absolute;
+      right: 1.1rem;
+      top: 1.1rem;
+      background: none;
+      border: none;
+      font-size: 1.3rem;
+      color: var(--accent);
+      cursor: pointer;
+    }
+    .modal .close-btn:hover {
+      color: var(--primary);
+    }
+    .session-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+    .session-item {
+      padding: 0.7rem 0.6rem 0.7rem 0.6rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .session-meta {
+      font-size: 0.92rem;
+      color: #646686;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .session-note {
+      font-size: 1rem;
+      color: var(--primary);
+      margin-top: 0.3rem;
+    }
+    .modal label {
+      font-size: 1rem;
+      color: var(--primary);
+      margin-bottom: 0.2rem;
+      font-weight: 500;
+    }
+    .modal textarea {
+      width: 100%;
+      min-height: 44px;
+      border-radius: 6px;
+      border: 1px solid #c8cad0;
+      font-size: 1rem;
+      padding: 0.5rem;
+      resize: vertical;
+    }
+    .modal .save-btn {
+      margin-top: 0.8rem;
+      padding: 0.6rem 0;
+      background: var(--accent);
+      color: white;
+      border-radius: 7px;
+      border: none;
+      font-weight: 600;
+      font-size: 1.08rem;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .modal .save-btn:active {
+      background: var(--primary);
+    }
+    .modal .empty-history {
+      color: #a8a8b7;
+      font-size: 1rem;
+      text-align: center;
+      margin: 1.5rem 0 0.5rem 0;
+    }
+    @media (max-width: 600px) {
+      .container {
+        max-width: 98vw;
+        padding: 1.2rem 0.3rem 1rem 0.3rem;
+      }
+      .timer { font-size: 2.6rem; }
+      h1 { font-size: 1.3rem; }
+      button { font-size: 1rem; padding: 0.7rem 0; }
+      .modal { min-width: 0; width: 95vw; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>FocusBank</h1>
+    <div class="timer" id="timer">00:00</div>
+    <div class="focus-stats-row">
+      Total Focus: <span id="totalFocus">00:00</span>
+      <div class="stats-actions">
+        <button class="icon-btn" title="View Focus History" onclick="openHistory()">
+          🕓
+        </button>
+        <button class="icon-btn danger" title="Reset & Record" onclick="openResetModal()">
+          ♻️
+        </button>
+      </div>
+    </div>
+    <div class="button-row">
+      <button id="startBtn" onclick="startWork()">Start</button>
+      <button id="stopBtn" onclick="stopWork()" disabled>Stop</button>
+    </div>
+    <button id="startBreakBtn" onclick="startBreak()" style="display:none">Start Break</button>
+    <button id="stopBreakBtn" onclick="stopBreak()" style="display:none;background:#e07a5f;color:white;">Stop Break</button>
+  </div>
+
+  <!-- Reset Modal -->
+  <div id="resetModal" style="display:none">
+    <div class="modal-backdrop">
+      <div class="modal">
+        <button class="close-btn" onclick="closeResetModal()" aria-label="Close">&times;</button>
+        <h2>Record & Reset Focus</h2>
+        <div>
+          <div><b>This session's focus:</b> <span id="modalFocusTime"></span></div>
+          <div style="font-size:0.98rem;color:#646686;">
+            <span id="modalStart"></span> – <span id="modalEnd"></span>
+          </div>
+        </div>
+        <label for="focusNote">Add a note (optional):</label>
+        <textarea id="focusNote" maxlength="200" placeholder="e.g. 'Deep work on project X'"></textarea>
+        <button class="save-btn" onclick="saveAndReset()">Save & Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div id="historyModal" style="display:none">
+    <div class="modal-backdrop">
+      <div class="modal">
+        <button class="close-btn" onclick="closeHistory()" aria-label="Close">&times;</button>
+        <h2>Focus History</h2>
+        <div class="session-list" id="historyList"></div>
+        <div class="empty-history" id="emptyHistoryMsg" style="display:none">
+          No focus sessions recorded yet.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Time & Session State ---
+    let workStartTime = null;
+    let lastWorkDuration = 0;
+    let timerInterval = null;
+    let breakDuration = 0;
+    let totalFocusMs = 0;
+    let inWork = false;
+    let onBreak = false;
+    let breakTimeLeft = 0;
+    let focusSessionStart = null;
+
+    // --- Persistent Storage Key ---
+    const FOCUS_TOTAL_KEY = "focusbank_totalFocusMs";
+    const FOCUS_SESSIONS_KEY = "focusbank_sessions";
+    const FOCUS_SESSION_START_KEY = "focusbank_sessionStart";
+
+    // --- Load persistent values ---
+    if (localStorage.getItem(FOCUS_TOTAL_KEY)) {
+      totalFocusMs = parseInt(localStorage.getItem(FOCUS_TOTAL_KEY), 10) || 0;
+    }
+    if (localStorage.getItem(FOCUS_SESSION_START_KEY)) {
+      focusSessionStart = new Date(localStorage.getItem(FOCUS_SESSION_START_KEY));
+    } else {
+      focusSessionStart = new Date();
+      localStorage.setItem(FOCUS_SESSION_START_KEY, focusSessionStart.toISOString());
+    }
+
+    // --- Utility ---
+    function formatTime(ms) {
+      ms = Math.max(0, ms);
+      const totalSeconds = Math.floor(ms / 1000);
+      const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+      const seconds = String(totalSeconds % 60).padStart(2, '0');
+      return `${minutes}:${seconds}`;
+    }
+    function formatDate(dt) {
+      if (!(dt instanceof Date)) dt = new Date(dt);
+      return dt.toLocaleDateString() + ' ' + dt.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
+    }
+
+    function updateTimerDisplay(ms) {
+      document.getElementById('timer').textContent = formatTime(ms);
+    }
+    function updateTotalFocusDisplay() {
+      document.getElementById('totalFocus').textContent = formatTime(totalFocusMs);
+    }
+
+    function saveTotalFocus() {
+      localStorage.setItem(FOCUS_TOTAL_KEY, totalFocusMs.toString());
+    }
+    function saveSessionStart(date) {
+      localStorage.setItem(FOCUS_SESSION_START_KEY, date.toISOString());
+    }
+
+    // --- Work Timer Logic ---
+    function startWork() {
+      if (inWork || onBreak) return;
+      inWork = true;
+      workStartTime = Date.now();
+      lastWorkDuration = 0;
+      updateTimerDisplay(0);
+      document.getElementById('startBtn').disabled = true;
+      document.getElementById('stopBtn').disabled = false;
+      document.getElementById('startBreakBtn').style.display = 'none';
+      document.getElementById('stopBreakBtn').style.display = 'none';
+      timerInterval = setInterval(() => {
+        const now = Date.now();
+        lastWorkDuration = now - workStartTime;
+        updateTimerDisplay(lastWorkDuration);
+      }, 200);
+    }
+
+    function stopWork() {
+      if (!inWork) return;
+      inWork = false;
+      const workEndTime = Date.now();
+      lastWorkDuration = workEndTime - workStartTime;
+      totalFocusMs += lastWorkDuration;
+      updateTotalFocusDisplay();
+      saveTotalFocus();
+      clearInterval(timerInterval);
+      updateTimerDisplay(lastWorkDuration);
+
+      // --- Scaled break: 1 min per 5 min of work (minimum 1 min, floored) ---
+      // E.g., 5-9min = 1min, 10-14min = 2min, etc.
+      breakDuration = Math.floor((lastWorkDuration / 1000 / 60) / 5) * 60 * 1000;
+      if (breakDuration < 60000) breakDuration = 60000;
+      document.getElementById('startBreakBtn').style.display = 'block';
+      document.getElementById('stopBtn').disabled = true;
+      document.getElementById('startBtn').disabled = false;
+    }
+
+    // --- Break Timer Logic ---
+    function startBreak() {
+      if (onBreak) return;
+      onBreak = true;
+      document.getElementById('startBreakBtn').style.display = 'none';
+      document.getElementById('stopBreakBtn').style.display = 'block';
+      breakTimeLeft = breakDuration;
+      let breakEndTime = Date.now() + breakTimeLeft;
+      updateTimerDisplay(breakTimeLeft);
+      timerInterval = setInterval(() => {
+        breakTimeLeft = breakEndTime - Date.now();
+        if (breakTimeLeft <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById('timer').textContent = 'Break over! 🎉';
+          endBreak();
+          return;
+        }
+        updateTimerDisplay(breakTimeLeft);
+      }, 200);
+    }
+
+    function stopBreak() {
+      if (!onBreak) return;
+      clearInterval(timerInterval);
+      document.getElementById('timer').textContent = 'Break stopped.';
+      endBreak();
+    }
+    function endBreak() {
+      onBreak = false;
+      document.getElementById('stopBreakBtn').style.display = 'none';
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('stopBtn').disabled = true;
+    }
+
+    // --- Recording & Resetting Total Focus ---
+    function openResetModal() {
+      if (totalFocusMs === 0) return;
+      // Populate modal values
+      document.getElementById('modalFocusTime').textContent = formatTime(totalFocusMs);
+      document.getElementById('modalStart').textContent = formatDate(focusSessionStart);
+      document.getElementById('modalEnd').textContent = formatDate(new Date());
+      document.getElementById('focusNote').value = '';
+      document.getElementById('resetModal').style.display = 'block';
+    }
+    function closeResetModal() {
+      document.getElementById('resetModal').style.display = 'none';
+    }
+    function saveAndReset() {
+      // Record session to history
+      let sessions = [];
+      try {
+        sessions = JSON.parse(localStorage.getItem(FOCUS_SESSIONS_KEY) || "[]");
+      } catch(e) { sessions = []; }
+      const session = {
+        focusTime: totalFocusMs,
+        started: focusSessionStart,
+        ended: new Date(),
+        note: document.getElementById('focusNote').value.trim()
+      };
+      sessions.unshift(session); // newest first
+      localStorage.setItem(FOCUS_SESSIONS_KEY, JSON.stringify(sessions));
+      // Reset total focus & start time
+      totalFocusMs = 0;
+      focusSessionStart = new Date();
+      saveTotalFocus();
+      saveSessionStart(focusSessionStart);
+      updateTotalFocusDisplay();
+      closeResetModal();
+      updateHistoryList();
+    }
+
+    // --- History Modal Logic ---
+    function openHistory() {
+      updateHistoryList();
+      document.getElementById('historyModal').style.display = 'block';
+    }
+    function closeHistory() {
+      document.getElementById('historyModal').style.display = 'none';
+    }
+    function updateHistoryList() {
+      let sessions = [];
+      try {
+        sessions = JSON.parse(localStorage.getItem(FOCUS_SESSIONS_KEY) || "[]");
+      } catch(e) { sessions = []; }
+      const list = document.getElementById('historyList');
+      list.innerHTML = '';
+      if (!sessions.length) {
+        document.getElementById('emptyHistoryMsg').style.display = 'block';
+        return;
+      } else {
+        document.getElementById('emptyHistoryMsg').style.display = 'none';
+      }
+      for (const s of sessions) {
+        const div = document.createElement('div');
+        div.className = "session-item";
+        div.innerHTML = `
+          <div><b>Focus:</b> ${formatTime(s.focusTime)}</div>
+          <div class="session-meta">
+            <span>Started: ${formatDate(s.started)}</span>
+            <span>Reset: ${formatDate(s.ended)}</span>
+          </div>
+          ${s.note ? `<div class="session-note">📝 ${s.note}</div>` : ""}
+        `;
+        list.appendChild(div);
+      }
+    }
+
+    // --- Initialize displays ---
+    updateTotalFocusDisplay();
+    updateTimerDisplay(0);
+
+    // --- Keyboard: Escape closes modals ---
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeResetModal();
+        closeHistory();
+      }
+    });
+
+    // --- Close modal when clicking outside it ---
+    document.getElementById('resetModal').addEventListener('click', function(e) {
+      if (e.target.classList.contains('modal-backdrop')) closeResetModal();
+    });
+    document.getElementById('historyModal').addEventListener('click', function(e) {
+      if (e.target.classList.contains('modal-backdrop')) closeHistory();
+    });
+  </script>
+</body>
+</html>
